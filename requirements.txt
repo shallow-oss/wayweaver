@@ -1,0 +1,19 @@
+# WayWeaver AI runtime dependencies
+# Python runtime: 3.12.x
+#
+# Keep this file limited to packages required to run the application.
+# Development-only tools belong in requirements-dev.txt.
+
+# API framework and local ASGI server.
+# The selected extra intentionally excludes the unrelated FastAPI Cloud CLI.
+fastapi[standard-no-fastapi-cloud-cli]==0.139.2
+
+# Environment-based configuration.
+pydantic-settings==2.14.2
+
+# Database ORM and schema migrations.
+SQLAlchemy==2.0.51
+alembic==1.18.5
+
+# PostgreSQL driver.
+psycopg[binary]==3.3.4
