@@ -21,6 +21,10 @@ class Settings(BaseSettings):
         "production",
     ] = "development"
     debug: bool = False
+    database_url: str = (
+        "postgresql+psycopg://wayweaver:wayweaver@localhost:5432/wayweaver"
+    )
+    database_echo: bool = False
 
 
 @lru_cache
