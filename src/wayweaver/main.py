@@ -1,9 +1,16 @@
 from fastapi import FastAPI
 
 from wayweaver.api.router import api_router
+from wayweaver.core.config import Settings, get_settings
 
-def create_app() -> FastAPI:
-    application = FastAPI(title="WayWeaver") 
+def create_app(settings:Settings | None = None) -> FastAPI:
+    app_settings = settings if settings is not None else get_settings()
+
+    application = FastAPI(
+        title=app_settings.app_name,
+        debug=app_settings.debug,
+    ) 
+    application.state.settings = app_settings
     application.include_router(api_router)
     return application
 
