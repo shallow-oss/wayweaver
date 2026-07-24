@@ -85,6 +85,92 @@ GET  /api/v1/users/me
 PATCH /api/v1/users/me
 ```
 
+### 3.1 用户注册
+
+```http
+POST /api/v1/auth/register
+Content-Type: application/json
+```
+
+请求体：
+
+```json
+{
+  "email": "student@example.com",
+  "password": "a sufficiently long password",
+  "display_name": "WayWeaver Student",
+  "timezone": "Asia/Shanghai"
+}
+```
+
+字段规则：
+
+| 字段 | 必填 | 规则 |
+|---|---:|---|
+| `email` | 是 | 有效邮箱，去除首尾空格并转换为小写 |
+| `password` | 是 | 长度 15～128 个字符，不自动去除空格 |
+| `display_name` | 是 | 去除首尾空格后长度为 1～100 |
+| `timezone` | 否 | 有效 IANA 时区，默认 `Asia/Shanghai` |
+
+成功响应：
+
+```http
+HTTP/1.1 201 Created
+Content-Type: application/json
+```
+
+```json
+{
+  "id": "52d913cd-ad7a-498d-83b9-0f46f835702e",
+  "email": "student@example.com",
+  "display_name": "WayWeaver Student",
+  "timezone": "Asia/Shanghai",
+  "is_active": true,
+  "created_at": "2026-07-24T10:30:00Z",
+  "updated_at": "2026-07-24T10:30:00Z"
+}
+```
+
+注册响应不得包含：
+
+- `password`；
+- `password_hash`；
+- Access Token；
+- Refresh Token。
+
+邮箱已经存在：
+
+```http
+HTTP/1.1 409 Conflict
+Content-Type: application/json
+```
+
+```json
+{
+  "detail": "An account with this email already exists"
+}
+```
+
+输入校验失败：
+
+```http
+HTTP/1.1 422 Unprocessable Entity
+```
+
+注册流程：
+
+```text
+接收 UserCreate
+→ 校验并规范化输入
+→ 查询规范化邮箱是否存在
+→ 对密码执行安全哈希
+→ 创建 User ORM 对象
+→ Repository 写入数据库
+→ Service 提交事务
+→ 转换为 UserResponse
+→ 返回 201 Created
+```
+
 ## 4. Traveler Profile
 
 ```text

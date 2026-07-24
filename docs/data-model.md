@@ -37,20 +37,49 @@ erDiagram
 
 ## 3. User
 
+User 表保存用户身份、认证凭证摘要和基础展示信息。
+
+表名：
+
 ```text
-id                  UUID PK
-email               string unique not null
-password_hash       string not null
-display_name        string not null
-timezone            string not null
-is_active           boolean not null
-created_at          timestamptz not null
-updated_at          timestamptz not null
+users
 ```
+
+字段：
+
+| 字段 | 数据库类型 | 可空 | 默认值 | 说明 |
+|---|---|---:|---|---|
+| `id` | UUID | 否 | 应用生成 UUID v4 | 用户主键 |
+| `email` | VARCHAR(320) | 否 | 无 | 规范化后的登录邮箱 |
+| `password_hash` | VARCHAR(255) | 否 | 无 | 密码安全哈希，永不保存明文密码 |
+| `display_name` | VARCHAR(100) | 否 | 无 | 用户展示名称 |
+| `timezone` | VARCHAR(64) | 否 | `Asia/Shanghai` | IANA 时区名称 |
+| `is_active` | BOOLEAN | 否 | `true` | 用户是否允许登录和使用系统 |
+| `created_at` | TIMESTAMPTZ | 否 | 当前时间 | 用户创建时间 |
+| `updated_at` | TIMESTAMPTZ | 否 | 当前时间 | 用户最后更新时间 |
+
+约束：
+
+- `id` 是主键；
+- `email` 具有唯一约束；
+- `email`、`password_hash`、`display_name` 和 `timezone` 不允许为空；
+- `created_at` 和 `updated_at` 使用带时区的时间；
+- 所有时间在数据库中按照 UTC 语义保存。
 
 索引：
 
-- unique(email)
+- `PRIMARY KEY (id)`；
+- `UNIQUE (email)`。
+
+业务不变量：
+
+- 邮箱保存前去除首尾空格并转换为小写；
+- 同一个规范化邮箱只能注册一次；
+- 密码明文只能存在于单次注册请求的处理过程中；
+- 数据库、日志和 API 响应不得包含密码明文；
+- `password_hash` 不得通过任何用户响应 Schema 返回；
+- `timezone` 必须是有效的 IANA 时区名称；
+- 被停用的用户保留数据，但不能继续登录。
 
 ## 4. TravelerProfile
 
