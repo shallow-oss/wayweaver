@@ -27,6 +27,19 @@ config.set_main_option(
 
 target_metadata = Base.metadata
 
+def include_object(
+    _object: object,
+    _name: str | None,
+    type_: str,
+    reflected: bool,
+    compare_to: object | None,
+) -> bool:
+    """Ignore database-managed tables that are not in ORM metadata."""
+    if type_ == "table" and reflected and compare_to is None:
+        return False
+
+    return True
+
 def run_migrations_offline() -> None:
     url = config.get_main_option("sqlalchemy.url")
 
@@ -36,6 +49,7 @@ def run_migrations_offline() -> None:
         literal_binds=True,
         dialect_opts={"paramstyle": "named"},
         compare_type=True,
+        include_object=include_object,
     )
 
     with context.begin_transaction():
@@ -46,6 +60,7 @@ def do_run_migrations(connection: Connection) -> None:
         connection=connection,
         target_metadata=target_metadata,
         compare_type=True,
+        include_object=include_object,
     )
 
     with context.begin_transaction():
