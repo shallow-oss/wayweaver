@@ -1,0 +1,52 @@
+name: wayweaver
+
+services:
+  db:
+    image: postgis/postgis:17-3.5
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-wayweaver}
+      POSTGRES_USER: ${POSTGRES_USER:-wayweaver}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-wayweaver}
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U ${POSTGRES_USER:-wayweaver} -d ${POSTGRES_DB:-wayweaver}",
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    restart: unless-stopped
+
+  redis:
+    image: redis:8.8.0-alpine
+    command:
+      [
+        "redis-server",
+        "--appendonly",
+        "yes",
+      ]
+    ports:
+      - "127.0.0.1:6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "redis-cli",
+          "ping",
+        ]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  redis_data:

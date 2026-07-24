@@ -25,6 +25,7 @@ class Settings(BaseSettings):
         "postgresql+psycopg://wayweaver:wayweaver@localhost:5432/wayweaver"
     )
     database_echo: bool = False
+    redis_url: str = "redis://localhost:6379/0"
 
 
 @lru_cache
